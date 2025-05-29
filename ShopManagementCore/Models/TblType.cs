@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ShopManagementCore.Models;
@@ -15,4 +16,6 @@ public partial class TblType
 
     [StringLength(50)]
     public string? ProductType { get; set; }
+
+
 }

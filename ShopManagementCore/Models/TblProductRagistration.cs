@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ShopManagementCore.Models;
@@ -18,4 +19,10 @@ public partial class TblProductRagistration
 
     [StringLength(50)]
     public string? ProductName { get; set; }
+
+    [NotMapped]
+    public List<SelectListItem> ProductTypes { get; set; }
+    [NotMapped]
+    public List<SelectListItem> ProductNames { get; set; }
+
 }
