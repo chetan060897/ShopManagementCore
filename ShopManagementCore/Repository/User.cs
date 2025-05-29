@@ -23,11 +23,59 @@ namespace ShopManagementCore.Repository
             return _context.TblRagistrations.FirstOrDefault(x => x.CustomerId == CustomerId);
         }
 
-        public TblRagistration Login(string UserName, string Password)
+        public TblRagistration Login(string Type,string UserName, string Password)
         {
             return _context.TblRagistrations
-                           .FirstOrDefault(u => u.Email == UserName && u.Password == Password);
+                           .FirstOrDefault(u => u.Type == Type && u.Email == UserName && u.Password == Password);
         }
 
+        public void Register(TblRagistration user)
+        {
+            _context.TblRagistrations.Add(user);
+            _context.SaveChanges();
+        }
+
+        public TblRagistration? GetByEmail(string email)
+        {
+            return _context.TblRagistrations.FirstOrDefault(u => u.Email == email);
+        }
+
+        public void AddType(TblType type)
+        {
+            _context.TblTypes.Add(type);
+            _context.SaveChanges();
+        }
+
+        public List<TblType> GetAllProductTypes()
+        {
+            return _context.TblTypes.ToList();
+        }
+        //public List<TblProductRagistration> GetAllProducts()
+        //{
+        //    return _context.TblProductRagistrations.ToList();
+        //}
+
+        public List<TblProductRagistration> GetAllProducts(int productTypeId)
+        {
+            return _context.TblProductRagistrations
+                .Where(p => p.ProductTypeId == productTypeId)
+                .ToList();
+        }
+
+
+
+        public void SaveProducts(TblProductRagistration Product)
+        {
+            _context.TblProductRagistrations.Add(Product);
+            _context.SaveChanges();
+        }
+
+
+
+        public void SaveProductsSize(TblProductSize productSize)
+        {
+            _context.TblProductSizes.Add(productSize);
+            _context.SaveChanges();
+        }
     }
 }

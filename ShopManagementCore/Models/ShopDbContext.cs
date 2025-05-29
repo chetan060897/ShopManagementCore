@@ -45,21 +45,27 @@ public partial class ShopDbContext : DbContext
         modelBuilder.Entity<TblProductRagistration>(entity =>
         {
             entity.Property(e => e.ProductNameId).ValueGeneratedOnAdd();
+            entity.HasKey(e => e.ProductNameId);
+
         });
 
         modelBuilder.Entity<TblProductSize>(entity =>
         {
             entity.Property(e => e.ProductSizeId).ValueGeneratedOnAdd();
+            entity.HasKey(e => e.ProductSizeId);
+
         });
 
         modelBuilder.Entity<TblRagistration>(entity =>
         {
             entity.Property(e => e.CustomerId).ValueGeneratedOnAdd();
+            entity.HasKey(e => e.CustomerId);
         });
 
         modelBuilder.Entity<TblType>(entity =>
         {
             entity.Property(e => e.ProductTypeId).ValueGeneratedOnAdd();
+            entity.HasKey(e => e.ProductTypeId);
         });
 
         OnModelCreatingPartial(modelBuilder);

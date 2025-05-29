@@ -1,0 +1,162 @@
+﻿@model ShopManagementCore.Models.TblProductRagistration
+
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Admin Dashboard</h2>
+
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs" id="adminTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="type-tab" data-bs-toggle="tab" data-bs-target="#type" type="button" role="tab">Add Type</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="product-tab" data-bs-toggle="tab" data-bs-target="#product" type="button" role="tab">Add Product</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="size-tab" data-bs-toggle="tab" data-bs-target="#size" type="button" role="tab">Add Size</button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content p-4 border border-top-0" id="adminTabContent">
+        <!-- Add Type -->
+        <div class="tab-pane fade show active" id="type" role="tabpanel">
+            <h5>Add Product Type</h5>
+            <form asp-action="AddType" method="post">
+                <div class="mb-3">
+
+                 
+
+                    <label for="TypeName" class="form-label">Type Name</label>
+                    <input type="text" name="TypeName" class="form-control" placeholder="Enter type name" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Add Type</button>
+            </form>
+        </div>
+
+      
+
+
+
+        <div class="tab-pane fade" id="product" role="tabpanel">
+            <h5>Add Product</h5>
+            <form asp-action="AddProduct" method="post">
+                <div class="mb-3">
+                    <label asp-for="ProductTypeId" class="form-label">Product Type</label>
+                    <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" required>
+                        <option value="">-- Select Type --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="ProductName" class="form-label">Product Name</label>
+                    <input type="text" name="ProductName" class="form-control" placeholder="Enter product name" required />
+                </div>
+                <!-- Additional product fields here -->
+                <button type="submit" class="btn btn-success">Add Product</button>
+            </form>
+        </div>
+
+
+        <div class="tab-pane fade" id="size" role="tabpanel">
+            <h5>Add Product Size</h5>
+            <form asp-action="AddSize" method="post">
+              @*   <div class="mb-3">
+                    <label asp-for="ProductTypeId" class="form-label">Product Type</label>
+                    <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" id="ProductTypeId" required>
+                        <option value="">-- Select Type --</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProductNameId" class="form-label">Product Name</label>
+                    <select asp-for="ProductNameId" class="form-control" id="ProductNameId" required>
+                        <option value="">-- Select Product --</option>
+                    </select>
+                </div>
+ *@
+
+                <div class="mb-3">
+                    <label asp-for="ProductTypeId" class="form-label">Product Type</label>
+                    <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" id="SizeProductTypeId" required>
+                        <option value="">-- Select Type --</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProductNameId" class="form-label">Product Name</label>
+                    <select asp-for="ProductNameId" class="form-control" id="SizeProductNameId" required>
+                        <option value="">-- Select Product --</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ProductSize" class="form-label">Product Size</label>
+                    <input type="text" name="ProductSize" class="form-control" placeholder="Enter product Size" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="ProductPrice" class="form-label">Product Price</label>
+                    <input type="text" name="ProductPrice" class="form-control" placeholder="Enter product Price" required />
+                </div>
+
+                <button type="submit" class="btn btn-info">Add Size</button>
+            </form>
+        </div>
+
+
+
+        @* <!-- Add Size -->
+        <div class="tab-pane fade" id="size" role="tabpanel">
+            <h5>Add Product Size</h5>
+            <form asp-action="AddSize" method="post">
+                <div class="mb-3">
+                    <label for="SizeName" class="form-label">Size</label>
+                    <input type="text" name="SizeName" class="form-control" placeholder="Enter size" required />
+                </div>
+                <button type="submit" class="btn btn-info">Add Size</button>
+            </form>
+        </div> *@
+
+
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#SizeProductTypeId').on('change', function () {
+            var selectedTypeId = $(this).val();
+
+            if (!selectedTypeId) {
+                $('#SizeProductNameId').html('<option value="">-- Select Product --</option>');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetProductsByType", "Home")', // Adjust controller name if needed
+                type: 'GET',
+                data: { typeId: selectedTypeId },
+                success: function (data) {
+                    var $productDropdown = $('#SizeProductNameId');
+                    $productDropdown.empty();
+                    $productDropdown.append('<option value="">-- Select Product --</option>');
+
+                    $.each(data, function (i, product) {
+                        $productDropdown.append(`<option value="${product.id}">${product.name}</option>`);
+                    });
+                },
+                error: function () {
+                    alert("Failed to load products. Please try again.");
+                }
+            });
+        });
+    });
+</script>
+
+

@@ -6,7 +6,16 @@ namespace ShopManagementCore.Service
     {
         List<TblRagistration> getAll();
         TblRagistration getUser(int CustomerId);
-        TblRagistration Login(string UserName, string Password);
+        TblRagistration Login(string Type,string UserName, string Password);
 
+        void Register(TblRagistration user);
+        TblRagistration? GetByEmail(string email);
+
+        void AddType(TblType type);
+        List<TblType> GetAllProductTypes();
+        List<TblProductRagistration> GetAllProducts(int producttypeid);
+
+        void SaveProducts(TblProductRagistration product);
+        void SaveProductsSize(TblProductSize productSize);
     }
 }
