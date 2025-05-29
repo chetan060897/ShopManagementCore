@@ -1,5 +1,279 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ShopManagementCore.Models.TblProductRagistration
+@using Microsoft.AspNetCore.Http
+
 @{
+    ViewData["Title"] = "Place Order";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Adjust layout path if needed
 }
+
+@{
+    var customerId = Context.Session.GetString("UserID") ?? "N/A";
+    var customerName = Context.Session.GetString("UserName") ?? "N/A";
+    var customerEmail = Context.Session.GetString("Username") ?? "N/A";
+}
+
+
+<div class="container mt-5">
+    <!-- Customer Info -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Customer Details
+        </div>
+        <div class="card-body row g-3">
+            <div class="col-md-4">
+                <label for="customerId" class="form-label">Customer ID</label>
+                <input type="text" class="form-control" id="customerId" value="@customerId" readonly />
+            </div>
+            <div class="col-md-4">
+                <label for="customerName" class="form-label">Customer Name</label>
+                <input type="text" class="form-control" id="customerName" value="@customerName" readonly />
+            </div>
+            <div class="col-md-4">
+                <label for="customerEmail" class="form-label">Customer Email</label>
+                <input type="email" class="form-control" id="customerEmail" value="@customerEmail" readonly />
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Selection -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="productType" class="form-label">Product Type</label>
+            @* <select id="productType" class="form-select">
+                <option selected disabled>-- Select Product Type --</option>
+                <!-- Populate dynamically -->
+            </select> *@
+            <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" id="SizeProductTypeId" required>
+                <option value="">-- Select Type --</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="productName" class="form-label">Product Name</label>
+            @* <select id="productName" class="form-select">
+                <option selected disabled>-- Select Product Name --</option>
+                <!-- Populate dynamically -->
+            </select> *@
+            <select asp-for="ProductNameId" class="form-control" id="SizeProductNameId" required>
+                <option value="">-- Select Product --</option>
+            </select>
+        </div>
+    </div>
+
+
+    <!-- List Boxes with Buttons in Between -->
+    <div class="row mb-4">
+        <!-- Product Size List -->
+        <div class="col-md-5">
+            <label for="productTypeList" class="form-label">Product Size</label>
+            <select id="productTypeList" class="form-select" size="5" multiple>
+                <!-- Populated by JavaScript -->
+            </select>
+        </div>
+
+        <!-- Action Buttons in the Middle -->
+        <div class="col-md-2 d-flex flex-column justify-content-center align-items-center gap-2">
+            <button class="btn btn-success w-100" id="addToCartBtn">Add →</button>
+            <button class="btn btn-danger w-100" id="removeFromCartBtn">← Remove</button>
+        </div>
+
+        <!-- Product Details List -->
+        <div class="col-md-5">
+            <label for="productDetailsList" class="form-label">Product Details</label>
+            <select id="productDetailsList" class="form-select" size="5" multiple>
+                <!-- Example: <option>Electronics - Mobile - Large - $200</option> -->
+            </select>
+        </div>
+    </div>
+
+    @* <!-- List Boxes -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="productTypeList" class="form-label">Product Size</label>
+            <select id="productTypeList" class="form-select" size="6" multiple>
+                <!-- Populated by JavaScript -->
+            </select>
+
+        </div>
+        <div class="col-md-6">
+            <label for="productDetailsList" class="form-label">Product Details</label>
+            <select id="productDetailsList" class="form-select" size="6" multiple>
+                <!-- Example: <option>Electronics - Mobile - Large - $200</option> -->
+            </select>
+        </div>
+    </div> *@
+
+   @*  <!-- Actions -->
+    <div class="row mb-3">
+        <div class="col d-grid">
+            <button class="btn btn-success" id="addToCartBtn">Add to Cart</button>
+        </div>
+        <div class="col d-grid">
+            <button class="btn btn-danger" id="removeFromCartBtn">Remove from Cart</button>
+        </div>
+    </div> *@
+
+    <!-- Price & Total -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="price" class="form-label">Price</label>
+@*             <input type="text" id="price" class="form-control" placeholder="$0.00" readonly />
+ *@
+            <input type="text" id="price" class="form-control" placeholder="₹0.00" readonly />
+
+</div>
+        <div class="col-md-6">
+            <label for="total" class="form-label">Total</label>
+            <input type="text" id="total" class="form-control" placeholder="$0.00" readonly />
+        </div>
+    </div>
+
+    <!-- Order Button -->
+    <div class="text-center">
+        <button class="btn btn-primary btn-lg" id="confirmOrderBtn">Order Confirmed</button>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // Load product names when product type changes
+        $('#SizeProductTypeId').on('change', function () {
+            var selectedTypeId = $(this).val();
+
+            if (!selectedTypeId) {
+                $('#SizeProductNameId').html('<option value="">-- Select Product --</option>');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetProductsByType", "Home")',
+                type: 'GET',
+                data: { typeId: selectedTypeId },
+                success: function (data) {
+                    var $productDropdown = $('#SizeProductNameId');
+                    $productDropdown.empty();
+                    $productDropdown.append('<option value="">-- Select Product --</option>');
+
+                    $.each(data, function (i, product) {
+                        $productDropdown.append(`<option value="${product.id}">${product.name}</option>`);
+                    });
+                },
+                error: function () {
+                    alert("Failed to load products. Please try again.");
+                }
+            });
+        });
+
+        // Load product sizes when product name changes
+        $('#SizeProductNameId').on('change', function () {
+            var selectedProductId = $(this).val();
+
+            if (!selectedProductId) {
+                $('#productTypeList').empty();
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetSizesByProductId", "Home")',
+                type: 'GET',
+                data: { productId: selectedProductId },
+                success: function (data) {
+                    console.log("✅ RAW response from server:", data);
+
+                    var $sizeList = $('#productTypeList');
+                    $sizeList.empty();
+
+                    if (data.length === 0) {
+                        $sizeList.append('<option disabled>No sizes available</option>');
+                        return;
+                    }
+
+                    // $.each(data, function (i, size) {
+                    //     console.log(`👉 size[${i}] =`, size);  // ✅ Helps verify data in console
+                    //     $sizeList.append(`<option value="${size.Id}">${size.Name}</option>`);  // 👈 Match case exactly
+                    // });
+
+                    $.each(data, function (i, size) {
+                        console.log(`👉 size[${i}] =`, size);
+                        $sizeList.append(`<option value="${size.ProductSizeIds}">${size.ProductSizes}</option>`);
+                    });
+
+                },
+                error: function () {
+                    alert("Failed to load sizes. Please try again.");
+                }
+            });
+        });
+
+
+        $('#productTypeList').on('change', function () {
+            // var selectedSizeId = $(this).val(); // Should be numeric ID
+            var selectedSizeId = $('#productTypeList').val()?.[0]; // ✅ first selected item
+
+
+            if (!selectedSizeId) {
+                $('#price').val('$0.00');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetPriceBySizeId", "Home")',
+                type: 'GET',
+                data: { sizeId: selectedSizeId },
+                success: function (price) {
+                    var numericPrice = parseFloat(price);
+
+                    if (!isNaN(numericPrice) && numericPrice > 0) {
+                        $('#price').val(`₹${numericPrice.toFixed(2)}`);
+                    } else {
+                        $('#price').val('₹0.00');
+                    }
+                },
+
+                error: function () {
+                    alert("Unable to fetch price. Please try again.");
+                    $('#price').val('$0.00');
+                }
+            });
+        });
+
+
+
+
+    });
+</script>
+
+
+
+@* <script>
+    $(document).ready(function () {
+        $('#SizeProductTypeId').on('change', function () {
+            var selectedTypeId = $(this).val();
+
+            if (!selectedTypeId) {
+                $('#SizeProductNameId').html('<option value="">-- Select Product --</option>');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetProductsByType", "Home")', // Adjust controller name if needed
+                type: 'GET',
+                data: { typeId: selectedTypeId },
+                success: function (data) {
+                    var $productDropdown = $('#SizeProductNameId');
+                    $productDropdown.empty();
+                    $productDropdown.append('<option value="">-- Select Product --</option>');
+
+                    $.each(data, function (i, product) {
+                        $productDropdown.append(`<option value="${product.id}">${product.name}</option>`);
+                    });
+                },
+                error: function () {
+                    alert("Failed to load products. Please try again.");
+                }
+            });
+        });
+    });
+</script> *@

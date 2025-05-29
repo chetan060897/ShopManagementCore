@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using ShopManagementCore.Models;
 using ShopManagementCore.Service;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ShopManagementCore.Repository;
 
 namespace ShopManagementCore.Controllers
 {
@@ -35,6 +36,8 @@ namespace ShopManagementCore.Controllers
                     // Store user session
                     HttpContext.Session.SetString("Username", user.Email);
                     HttpContext.Session.SetString("UserType", user.Type);
+                    HttpContext.Session.SetString("UserID", (user.CustomerId).ToString());
+                    HttpContext.Session.SetString("UserName", user.Name);
 
                     // Redirect based on Type
                     if (user.Type == "Admin")
@@ -60,24 +63,7 @@ namespace ShopManagementCore.Controllers
 
 
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Login(TblRagistration model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = _userService.Login(model.Type,model.Email, model.Password);
-        //        if (user != null)
-        //        {
-        //            HttpContext.Session.SetString("Username", user.Email);
-        //            return RedirectToAction("Index", "Home");
-        //        }
-
-        //        ModelState.AddModelError("", "Invalid email or password.");
-        //    }
-
-        //    return View(model);
-        //}
+    
 
 
         public IActionResult Register()
@@ -113,8 +99,33 @@ namespace ShopManagementCore.Controllers
 
         public IActionResult CustomerDashboard()
         {
+            var types = _userService.GetAllProductTypes()
+               .Select(t => new SelectListItem
+               {
+                   Value = t.ProductTypeId.ToString(),
+                   Text = t.ProductType
+               }).ToList();
 
-            return View();
+
+            // var products = _userService.GetAllProducts()
+            //     .Select(p => new SelectListItem
+            // {
+            //Value = p.ProductNameId.ToString(),
+            //Text = p.ProductName
+            // }).ToList();
+
+
+            var model = new TblProductRagistration
+            {
+                ProductTypes = types
+                //ProductNames = products
+
+            };
+
+
+            return View(model);
+
+            //return View();
         }
 
         [HttpPost]
@@ -127,23 +138,7 @@ namespace ShopManagementCore.Controllers
         }
 
 
-        //public IActionResult AddProduct()
-        //{
-        //    var types = _userService.GetAllProductTypes()
-        //        .Select(t => new SelectListItem
-        //        {
-        //            Value = t.ProductTypeId.ToString(),
-        //            Text = t.ProductType
-        //        }).ToList();
-
-        //    var model = new TblProductRagistration
-        //    {
-        //        ProductTypes = types
-        //    };
-
-        //    return View(model);
-        //}
-
+        
 
         [HttpPost]
         public IActionResult AddProduct(TblProductRagistration model)
@@ -178,7 +173,37 @@ namespace ShopManagementCore.Controllers
 
             return Json(products);
         }
+        [HttpGet]
+        public IActionResult GetSizesByProductId(int productId)
+        {
+            var sizes = _userService.GetProductSizes(productId)
+                .Select(s => new {
+                    ProductSizeIds = s.ProductSizeId,     // ✅ Use PascalCase to match JS
+                    ProductSizes = s.ProductSize
 
+                }).ToList();
+
+
+
+            return Json(sizes);  // ✅ Don't stringify or return string here
+        }
+
+
+        [HttpGet]
+        public IActionResult GetPriceBySizeId(int sizeId)
+        {
+            // You can query your database for the price using the sizeId
+            //var size = _context.ProductSizes.FirstOrDefault(s => s.Id == sizeId);
+
+            var size = _userService.GetProductPrice(sizeId);
+
+            if (size != null)
+            {
+                return Json(size.ProductPrice); // return the price as JSON
+            }
+
+            return Json(0); // or return an error value
+        }
 
 
         public IActionResult AdminDashboard()

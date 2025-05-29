@@ -61,7 +61,17 @@ namespace ShopManagementCore.Repository
                 .Where(p => p.ProductTypeId == productTypeId)
                 .ToList();
         }
+        public List<TblProductSize> GetProductSizes(int productNameId)
+        {
+            return _context.TblProductSizes
+                .Where(p => p.ProductNameId == productNameId)
+                .ToList();
+        }
 
+        public TblProductSize? GetProductPrice(int productsizeid)
+        {
+            return _context.TblProductSizes.FirstOrDefault(u => u.ProductSizeId == productsizeid);
+        }
 
 
         public void SaveProducts(TblProductRagistration Product)

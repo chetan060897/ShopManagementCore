@@ -13,8 +13,11 @@ namespace ShopManagementCore.Service
 
         void AddType(TblType type);
         List<TblType> GetAllProductTypes();
-        List<TblProductRagistration> GetAllProducts(int producttypeid);
 
+        List<TblProductRagistration> GetAllProducts(int producttypeid);
+        List<TblProductSize> GetProductSizes(int productnameid);
+        TblProductSize? GetProductPrice(int productSizeId);
+        
         void SaveProducts(TblProductRagistration product);
         void SaveProductsSize(TblProductSize productSize);
     }

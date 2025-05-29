@@ -65,21 +65,7 @@
         <div class="tab-pane fade" id="size" role="tabpanel">
             <h5>Add Product Size</h5>
             <form asp-action="AddSize" method="post">
-              @*   <div class="mb-3">
-                    <label asp-for="ProductTypeId" class="form-label">Product Type</label>
-                    <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" id="ProductTypeId" required>
-                        <option value="">-- Select Type --</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="ProductNameId" class="form-label">Product Name</label>
-                    <select asp-for="ProductNameId" class="form-control" id="ProductNameId" required>
-                        <option value="">-- Select Product --</option>
-                    </select>
-                </div>
- *@
-
+      
                 <div class="mb-3">
                     <label asp-for="ProductTypeId" class="form-label">Product Type</label>
                     <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" id="SizeProductTypeId" required>
@@ -110,17 +96,7 @@
 
 
 
-        @* <!-- Add Size -->
-        <div class="tab-pane fade" id="size" role="tabpanel">
-            <h5>Add Product Size</h5>
-            <form asp-action="AddSize" method="post">
-                <div class="mb-3">
-                    <label for="SizeName" class="form-label">Size</label>
-                    <input type="text" name="SizeName" class="form-control" placeholder="Enter size" required />
-                </div>
-                <button type="submit" class="btn btn-info">Add Size</button>
-            </form>
-        </div> *@
+       
 
 
     </div>

@@ -21,7 +21,11 @@ builder.Services.AddDbContext<ShopDbContext>(options =>
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
