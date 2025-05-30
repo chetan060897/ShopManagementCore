@@ -39,20 +39,14 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <label for="productType" class="form-label">Product Type</label>
-            @* <select id="productType" class="form-select">
-                <option selected disabled>-- Select Product Type --</option>
-                <!-- Populate dynamically -->
-            </select> *@
+          
             <select asp-for="ProductTypeId" asp-items="Model.ProductTypes" class="form-control" id="SizeProductTypeId" required>
                 <option value="">-- Select Type --</option>
             </select>
         </div>
         <div class="col-md-6">
             <label for="productName" class="form-label">Product Name</label>
-            @* <select id="productName" class="form-select">
-                <option selected disabled>-- Select Product Name --</option>
-                <!-- Populate dynamically -->
-            </select> *@
+           
             <select asp-for="ProductNameId" class="form-control" id="SizeProductNameId" required>
                 <option value="">-- Select Product --</option>
             </select>
@@ -85,39 +79,14 @@
         </div>
     </div>
 
-    @* <!-- List Boxes -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <label for="productTypeList" class="form-label">Product Size</label>
-            <select id="productTypeList" class="form-select" size="6" multiple>
-                <!-- Populated by JavaScript -->
-            </select>
+   
 
-        </div>
-        <div class="col-md-6">
-            <label for="productDetailsList" class="form-label">Product Details</label>
-            <select id="productDetailsList" class="form-select" size="6" multiple>
-                <!-- Example: <option>Electronics - Mobile - Large - $200</option> -->
-            </select>
-        </div>
-    </div> *@
-
-   @*  <!-- Actions -->
-    <div class="row mb-3">
-        <div class="col d-grid">
-            <button class="btn btn-success" id="addToCartBtn">Add to Cart</button>
-        </div>
-        <div class="col d-grid">
-            <button class="btn btn-danger" id="removeFromCartBtn">Remove from Cart</button>
-        </div>
-    </div> *@
 
     <!-- Price & Total -->
     <div class="row mb-4">
         <div class="col-md-6">
             <label for="price" class="form-label">Price</label>
-@*             <input type="text" id="price" class="form-control" placeholder="$0.00" readonly />
- *@
+
             <input type="text" id="price" class="form-control" placeholder="₹0.00" readonly />
 
 </div>
@@ -128,13 +97,15 @@
     </div>
 
     <!-- Order Button -->
-    <div class="text-center">
-        <button class="btn btn-primary btn-lg" id="confirmOrderBtn">Order Confirmed</button>
+    <div class="text-center mt-3">
+        <button class="btn btn-success btn-lg" id="confirmOrderBtnAlt">Place Order Now</button>
     </div>
+
 </div>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
     $(document).ready(function () {
 
@@ -180,8 +151,6 @@
                 type: 'GET',
                 data: { productId: selectedProductId },
                 success: function (data) {
-                    console.log("✅ RAW response from server:", data);
-
                     var $sizeList = $('#productTypeList');
                     $sizeList.empty();
 
@@ -190,16 +159,9 @@
                         return;
                     }
 
-                    // $.each(data, function (i, size) {
-                    //     console.log(`👉 size[${i}] =`, size);  // ✅ Helps verify data in console
-                    //     $sizeList.append(`<option value="${size.Id}">${size.Name}</option>`);  // 👈 Match case exactly
-                    // });
-
                     $.each(data, function (i, size) {
-                        console.log(`👉 size[${i}] =`, size);
                         $sizeList.append(`<option value="${size.ProductSizeIds}">${size.ProductSizes}</option>`);
                     });
-
                 },
                 error: function () {
                     alert("Failed to load sizes. Please try again.");
@@ -207,14 +169,12 @@
             });
         });
 
-
+        // Load price when size is selected
         $('#productTypeList').on('change', function () {
-            // var selectedSizeId = $(this).val(); // Should be numeric ID
-            var selectedSizeId = $('#productTypeList').val()?.[0]; // ✅ first selected item
-
+            var selectedSizeId = $('#productTypeList').val()?.[0];
 
             if (!selectedSizeId) {
-                $('#price').val('$0.00');
+                $('#price').val('₹0.00');
                 return;
             }
 
@@ -231,49 +191,121 @@
                         $('#price').val('₹0.00');
                     }
                 },
-
                 error: function () {
                     alert("Unable to fetch price. Please try again.");
-                    $('#price').val('$0.00');
+                    $('#price').val('₹0.00');
                 }
             });
         });
 
+        // Add item to cart
+        $('#addToCartBtn').on('click', function () {
+            var selectedSizeOption = $('#productTypeList option:selected');
+            var selectedSizeText = selectedSizeOption.text();
+            var selectedSizeId = selectedSizeOption.val();
 
+            if (!selectedSizeId) {
+                alert("Please select a product size.");
+                return;
+            }
 
+            var productTypeText = $('#SizeProductTypeId option:selected').text();
+            var productNameText = $('#SizeProductNameId option:selected').text();
+            var priceText = $('#price').val();
 
+            if (!productTypeText || !productNameText || !priceText || priceText === "₹0.00") {
+                alert("Incomplete product selection or price not loaded.");
+                return;
+            }
+
+            var displayText = `${productTypeText} - ${productNameText} - ${selectedSizeText} - ${priceText}`;
+
+            // Prevent duplicate entry
+            var alreadyExists = false;
+            $('#productDetailsList option').each(function () {
+                if ($(this).text() === displayText) {
+                    alreadyExists = true;
+                    return false;
+                }
+            });
+
+            if (alreadyExists) {
+                alert("This item is already in the cart.");
+                return;
+            }
+
+            // Add to productDetailsList
+            $('#productDetailsList').append(`<option value="${selectedSizeId}">${displayText}</option>`);
+
+            // Reset price
+            $('#price').val('₹0.00');
+
+            // ✅ Update total
+            updateTotal();
+        });
+
+        // Remove selected item from cart
+        $('#removeFromCartBtn').on('click', function () {
+            $('#productDetailsList option:selected').remove();
+
+            // ✅ Update total
+            updateTotal();
+        });
+
+        // ✅ Function to update total price
+        function updateTotal() {
+            let total = 0;
+
+            $('#productDetailsList option').each(function () {
+                let priceMatch = $(this).text().match(/₹([\d.,]+)/);
+                if (priceMatch && priceMatch[1]) {
+                    let cleaned = priceMatch[1].replace(/,/g, '');
+                    total += parseFloat(cleaned);
+                }
+            });
+
+            $('#total').val(`₹${total.toFixed(2)}`);
+        }
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#confirmOrderBtn, #confirmOrderBtnAlt').on('click', function () {
+            var customerId = $('#customerId').val();
+            var orderItems = [];
+
+            $('#productDetailsList option').each(function () {
+                var sizeId = $(this).val();
+                orderItems.push({
+                    ProductSizeId: sizeId,
+                    CustomerId: customerId
+                });
+            });
+
+            if (orderItems.length === 0) {
+                alert("Cart is empty. Add items before confirming the order.");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("PlaceOrder", "Home")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(orderItems),
+                success: function (response) {
+                    alert("Order placed successfully!");
+                    $('#productDetailsList').empty();
+                    $('#total').val('₹0.00');
+                },
+                error: function () {
+                    alert("Failed to place order. Please try again.");
+                }
+            });
+        });
     });
 </script>
 
 
 
-@* <script>
-    $(document).ready(function () {
-        $('#SizeProductTypeId').on('change', function () {
-            var selectedTypeId = $(this).val();
-
-            if (!selectedTypeId) {
-                $('#SizeProductNameId').html('<option value="">-- Select Product --</option>');
-                return;
-            }
-
-            $.ajax({
-                url: '@Url.Action("GetProductsByType", "Home")', // Adjust controller name if needed
-                type: 'GET',
-                data: { typeId: selectedTypeId },
-                success: function (data) {
-                    var $productDropdown = $('#SizeProductNameId');
-                    $productDropdown.empty();
-                    $productDropdown.append('<option value="">-- Select Product --</option>');
-
-                    $.each(data, function (i, product) {
-                        $productDropdown.append(`<option value="${product.id}">${product.name}</option>`);
-                    });
-                },
-                error: function () {
-                    alert("Failed to load products. Please try again.");
-                }
-            });
-        });
-    });
-</script> *@

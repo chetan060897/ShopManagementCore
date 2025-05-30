@@ -107,12 +107,6 @@ namespace ShopManagementCore.Controllers
                }).ToList();
 
 
-            // var products = _userService.GetAllProducts()
-            //     .Select(p => new SelectListItem
-            // {
-            //Value = p.ProductNameId.ToString(),
-            //Text = p.ProductName
-            // }).ToList();
 
 
             var model = new TblProductRagistration
@@ -206,6 +200,32 @@ namespace ShopManagementCore.Controllers
         }
 
 
+
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder([FromBody] List<OrderItemViewModel> items)
+        {
+            if (items == null || items.Count == 0)
+                return BadRequest("No items to process.");
+
+            var orders = items.Select(item => new TblOrder
+            {
+                ProductSizeId = item.ProductSizeId,
+                CustomerId = item.CustomerId,
+                Date = DateTime.Now,
+                Status = "Confirmed",
+                Discount = 0,
+                IsDeleted = 0
+            }).ToList();
+
+            await _userService.SaveOrdersAsync(orders);
+
+            return Ok(new { message = "Order placed successfully!" });
+        }
+
+
+
+
+
         public IActionResult AdminDashboard()
         {
             var types = _userService.GetAllProductTypes()
@@ -214,14 +234,6 @@ namespace ShopManagementCore.Controllers
                    Value = t.ProductTypeId.ToString(),
                    Text = t.ProductType
                }).ToList();
-
-           
-           // var products = _userService.GetAllProducts()
-           //     .Select(p => new SelectListItem
-           // {
-           //Value = p.ProductNameId.ToString(),
-           //Text = p.ProductName
-           // }).ToList();
 
 
             var model = new TblProductRagistration

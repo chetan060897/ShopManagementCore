@@ -17,7 +17,8 @@ namespace ShopManagementCore.Service
         List<TblProductRagistration> GetAllProducts(int producttypeid);
         List<TblProductSize> GetProductSizes(int productnameid);
         TblProductSize? GetProductPrice(int productSizeId);
-        
+        Task SaveOrdersAsync(List<TblOrder> orders);
+
         void SaveProducts(TblProductRagistration product);
         void SaveProductsSize(TblProductSize productSize);
     }

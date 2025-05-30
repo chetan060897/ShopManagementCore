@@ -40,6 +40,8 @@ public partial class ShopDbContext : DbContext
         modelBuilder.Entity<TblOrder>(entity =>
         {
             entity.Property(e => e.OrderId).ValueGeneratedOnAdd();
+            entity.HasKey(e => e.OrderId);
+
         });
 
         modelBuilder.Entity<TblProductRagistration>(entity =>

@@ -87,5 +87,12 @@ namespace ShopManagementCore.Repository
             _context.TblProductSizes.Add(productSize);
             _context.SaveChanges();
         }
+
+
+        public async Task SaveOrdersAsync(List<TblOrder> orders)
+        {
+            await _context.TblOrders.AddRangeAsync(orders);
+            await _context.SaveChangesAsync();
+        }
     }
 }
